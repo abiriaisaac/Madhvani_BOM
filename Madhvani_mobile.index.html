@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MMC Steel — BOM</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4fb;--surface:#fff;--card:#e8eef7;--border:#c8d4e8;
+  --txt:#0f1a30;--txt2:#4a5878;--txt3:#8a94b0;
+  --accent:#1a56c4;--accent2:#0a9e68;--accent3:#c03030;--warn:#d97706;
+  --head:#102050;--head-txt:#fff;--row-alt:#f0f4fb;--row-hover:#dbeafe;
+  --btn:#1a56c4;--btn-txt:#fff;--inp:#fff;--inp-border:#c0ccdc;
+  --shadow:0 2px 12px rgba(26,86,196,.10);
+  --rad:10px;--rad-sm:7px;
+}
+.dk{
+  --bg:#0a0e14;--surface:#0f1520;--card:#16202e;--border:#243040;
+  --txt:#d8e4f0;--txt2:#8fa4ba;--txt3:#4a6070;
+  --accent:#4a90d9;--accent2:#12c87a;--accent3:#e04060;--warn:#f0a020;
+  --head:#0b1e3d;--head-txt:#94b8ff;--row-alt:#16202e;--row-hover:#1d2a3a;
+  --btn:#4a90d9;--btn-txt:#fff;--inp:#16202e;--inp-border:#243040;
+  --shadow:0 2px 20px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{font-size:14px;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;padding-bottom:80px;}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--head);color:var(--head-txt);padding:0 12px;height:50px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.brand{display:flex;align-items:center;gap:8px;}
+.brand-mark{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:8px;color:#fff;flex-shrink:0;}
+.brand-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;line-height:1.2;}
+.brand-sub{font-size:9px;opacity:.65;letter-spacing:.04em;}
+.topbar-actions{display:flex;gap:6px;align-items:center;}
+.icon-btn-top{width:34px;height:34px;border:none;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;}
+.icon-btn-top:active{opacity:.6;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--surface);border-top:1px solid var(--border);display:flex;height:62px;box-shadow:0 -2px 12px rgba(0,0,0,.08);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;color:var(--txt3);cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:0;transition:color .15s;}
+.nav-btn.active{color:var(--accent);}
+.nav-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ── PAGES ── */
+.page{display:none;padding:12px;}
+.page.active{display:block;}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;}
+.card-head{background:var(--card);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.card-title{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:6px;}
+.card-body{padding:12px 14px;}
+
+/* ── PLANT TYPE ── */
+.pt-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.pt-btn{padding:10px 8px;border:2px solid var(--border);border-radius:var(--rad-sm);background:var(--card);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--txt2);text-align:center;transition:all .15s;}
+.pt-btn.active{border-color:var(--accent);background:rgba(26,86,196,.08);color:var(--accent);}
+.pt-label{display:block;font-size:9px;font-weight:400;opacity:.7;margin-top:2px;}
+
+/* ── FORM FIELDS ── */
+.field{margin-bottom:10px;}
+.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--txt2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
+.field input,.field select{width:100%;padding:9px 10px;border:1px solid var(--inp-border);border-radius:var(--rad-sm);background:var(--inp);color:var(--txt);font-size:14px;font-family:'IBM Plex Sans',sans-serif;-webkit-appearance:none;appearance:none;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--rad-sm);padding:8px 10px;text-align:center;}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;color:var(--accent);line-height:1;}
+.stat-lbl{font-size:9px;color:var(--txt3);margin-top:2px;}
+
+/* ── BOM ROWS ── */
+.bom-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad-sm);margin-bottom:8px;overflow:hidden;}
+.bom-row-head{background:var(--card);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.bom-row-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--accent);min-width:22px;}
+.bom-row-summary{flex:1;padding:0 8px;font-size:11px;color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bom-row-toggle{font-size:14px;color:var(--txt3);transition:transform .2s;}
+.bom-row.expanded .bom-row-toggle{transform:rotate(180deg);}
+.bom-row-body{display:none;padding:10px 12px;border-top:1px solid var(--border);}
+.bom-row.expanded .bom-row-body{display:block;}
+.bom-field{margin-bottom:8px;}
+.bom-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.bom-field select,.bom-field input{width:100%;padding:8px 10px;border:1px solid var(--inp-border);border-radius:6px;background:var(--inp);color:var(--txt);font-size:13px;font-family:'IBM Plex Sans',sans-serif;-webkit-appearance:none;appearance:none;}
+.bom-qty-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.bom-del{width:100%;margin-top:10px;padding:9px;border:1px solid rgba(192,48,48,.3);border-radius:6px;background:rgba(192,48,48,.07);color:var(--accent3);font-size:12px;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;}
+.bom-del:active{opacity:.6;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:10px 16px;border:none;border-radius:var(--rad-sm);font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;background:var(--btn);color:var(--btn-txt);}
+.btn:active{opacity:.75;}
+.btn-sm{padding:7px 12px;font-size:12px;}
+.btn-outline{background:transparent;color:var(--accent);border:1px solid var(--border);}
+.btn-success{background:#16a34a;color:#fff;}
+.btn-warn{background:var(--warn);color:#fff;}
+.btn-danger{background:var(--accent3);color:#fff;}
+.btn-full{width:100%;justify-content:center;margin-bottom:8px;}
+.btn-row-group{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
+
+/* ── ADD ROW FAB ── */
+.fab{position:fixed;bottom:70px;right:14px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(26,86,196,.4);cursor:pointer;z-index:90;}
+.fab:active{transform:scale(.9);}
+
+/* ── DB TABLE ── */
+.db-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad-sm);margin-bottom:8px;padding:12px 14px;}
+.db-item-ref{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--txt);margin-bottom:4px;}
+.db-item-meta{font-size:11px;color:var(--txt3);margin-bottom:10px;display:flex;flex-wrap:wrap;gap:8px;}
+.db-item-meta span{display:flex;align-items:center;gap:3px;}
+.db-btn-row{display:flex;gap:6px;}
+.db-btn{padding:7px 12px;border:none;border-radius:6px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700;cursor:pointer;}
+.db-btn-edit{background:rgba(26,86,196,.12);color:var(--accent);}
+.db-btn-xl{background:rgba(217,119,6,.12);color:var(--warn);}
+.db-btn-del{background:rgba(192,48,48,.1);color:var(--accent3);}
+.db-btn:active{opacity:.6;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(10px);z-index:9999;background:var(--accent2);color:#fff;padding:10px 18px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;box-shadow:0 6px 22px rgba(0,0,0,.3);opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.error{background:var(--accent3);}
+.toast.info{background:var(--accent);}
+
+/* ── SHEET MODAL (slide-up for settings/analytics) ── */
+.sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;}
+.sheet-backdrop.open{display:flex;align-items:flex-end;}
+.sheet{background:var(--surface);border-radius:16px 16px 0 0;padding:16px;width:100%;max-height:85vh;overflow-y:auto;}
+.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.sheet-title{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);margin-bottom:14px;}
+
+/* ── SECTION PILL ── */
+.section-pill{display:inline-flex;align-items:center;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:600;background:rgba(26,86,196,.1);color:var(--accent);font-family:'JetBrains Mono',monospace;}
+
+/* ── ANALYTICS ── */
+.analytics-stat{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;background:var(--bg);margin-bottom:6px;}
+.analytics-stat-label{font-size:12px;color:var(--txt2);}
+.analytics-stat-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--accent);}
+.analytics-bar-row{margin-bottom:8px;}
+.analytics-bar-label{display:flex;justify-content:space-between;font-size:10px;color:var(--txt2);margin-bottom:3px;}
+.analytics-bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.analytics-bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s;}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:30px 20px;color:var(--txt3);}
+.empty-icon{font-size:36px;margin-bottom:10px;}
+.empty-msg{font-size:13px;}
+
+/* ── MISC ── */
+.info-box{background:rgba(26,86,196,.07);border-left:3px solid var(--accent);border-radius:0 var(--rad-sm) var(--rad-sm) 0;padding:9px 12px;font-size:12px;color:var(--txt2);margin-bottom:10px;}
+.info-box strong{color:var(--accent2);}
+.page-hdr{margin-bottom:12px;}
+.page-hdr h2{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;margin-bottom:2px;}
+.page-hdr p{font-size:11px;color:var(--txt3);}
+input[readonly]{background:var(--card)!important;color:var(--txt3)!important;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a94b0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+.spacer{height:8px;}
+</style>
+</head>
+<body id="appRoot">
+
+<div class="toast" id="toast"></div>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">MMC</div>
+    <div>
+      <div class="brand-name">MMC Steel — BOM</div>
+      <div class="brand-sub">Bill of Materials System</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn-top" onclick="openAnalytics()" title="Analytics">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
+    </button>
+    <button class="icon-btn-top" onclick="openSettings()" title="Settings">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+    <button class="icon-btn-top" onclick="toggleDark()" title="Dark Mode" id="darkBtn">
+      <svg id="darkIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ── PAGE: BOM ENTRY ── -->
+<div class="page active" id="page-entry">
+
+  <div style="height:10px;"></div>
+
+  <!-- Plant Type -->
+  <div class="pt-row">
+    <div class="pt-btn active" id="ptBtn-milling" onclick="setPlantType('milling')">
+      🏭 Milling <span class="pt-label">Steel Rolling Mill</span>
+    </div>
+    <div class="pt-btn" id="ptBtn-rollforming" onclick="setPlantType('rollforming')">
+      🔩 Roll Forming <span class="pt-label">Iron Sheet / Profile</span>
+    </div>
+  </div>
+
+  <!-- Project Info -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Project Info</div>
+      <button class="btn btn-sm btn-outline" onclick="toggleProjectInfo()" id="projectInfoToggle">▾ Show</button>
+    </div>
+    <div class="card-body" id="projectInfoBody" style="display:none;">
+      <div class="field-grid">
+        <div class="field"><label>BOM Reference</label><input id="bomRef" placeholder="BOM-MMC-2025-001"></div>
+        <div class="field"><label>Date</label><input id="bomDate" type="date"></div>
+        <div class="field"><label>Prepared By</label><input id="prepBy" placeholder="Engineer name"></div>
+        <div class="field"><label>Approved By</label><input id="appBy" placeholder="Approver"></div>
+        <div class="field"><label>Revision</label><input id="revision" placeholder="Rev 0"></div>
+        <div class="field"><label>Est. Cost (UGX)</label><input id="totalCost" type="number" placeholder="0"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val" id="st-rows">0</div><div class="stat-lbl">Rows</div></div>
+    <div class="stat"><div class="stat-val" id="st-sections">0</div><div class="stat-lbl">Sections</div></div>
+    <div class="stat"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Total Qty</div></div>
+  </div>
+
+  <!-- BOM Lines -->
+  <div class="page-hdr">
+    <h2>BOM Line Items <span class="section-pill" id="pt-badge">🏭 MILLING</span></h2>
+  </div>
+
+  <div class="info-box">
+    <strong>Tip:</strong> Tap a row to expand. Plant Section → Subsystem → Component → Spec auto-cascade.
+  </div>
+
+  <div id="bom-list"></div>
+  <div class="empty" id="bom-empty" style="display:none;">
+    <div class="empty-icon">📋</div>
+    <div class="empty-msg">No rows yet.<br>Tap + to add your first item.</div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div style="height:10px;"></div>
+  <div class="btn-row-group">
+    <button class="btn btn-success" onclick="saveBOM()">💾 Save BOM</button>
+    <button class="btn btn-warn" onclick="exportExcel()">📊 Export XL</button>
+  </div>
+  <div class="btn-row-group">
+    <button class="btn btn-outline" onclick="document.getElementById('xlImport').click()">📂 Import XL</button>
+    <button class="btn btn-danger" onclick="clearRows()">🗑 Clear All</button>
+  </div>
+  <input type="file" id="xlImport" accept=".xlsx,.xls" style="display:none" onchange="importExcel(this.files[0])">
+</div>
+
+<!-- ── PAGE: DATABASE ── -->
+<div class="page" id="page-db">
+  <div style="height:10px;"></div>
+  <div class="page-hdr">
+    <h2>🗄️ BOM Database</h2>
+    <p>Tap a BOM to load, export, or delete.</p>
+  </div>
+  <div class="btn-row-group">
+    <button class="btn btn-success" onclick="startNewBOM(); switchPage('entry')">＋ New BOM</button>
+    <button class="btn btn-warn" onclick="exportAllBOMs()">⬇ Export All</button>
+  </div>
+  <button class="btn btn-danger btn-full btn-sm" onclick="clearDatabase()">🗑 Clear Entire Database</button>
+  <div id="db-list"></div>
+  <div class="empty" id="db-empty" style="display:none;">
+    <div class="empty-icon">🗄️</div>
+    <div class="empty-msg">No saved BOMs yet.</div>
+  </div>
+</div>
+
+<!-- ── FAB ── -->
+<button class="fab" id="fab" onclick="addRow()" title="Add Row">+</button>
+
+<!-- ── BOTTOM NAV ── -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-entry" onclick="switchPage('entry')">
+    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+    Entry
+  </button>
+  <button class="nav-btn" id="nav-db" onclick="switchPage('db')">
+    <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+    DB (<span id="nav-db-count">0</span>)
+  </button>
+</div>
+
+<!-- ── ANALYTICS SHEET ── -->
+<div class="sheet-backdrop" id="analyticsSheet" onclick="closeSheet('analyticsSheet')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">📊 Analytics</div>
+    <div id="analytics-content"></div>
+    <button class="btn btn-outline btn-full" onclick="closeSheet('analyticsSheet')" style="margin-top:12px;">Close</button>
+  </div>
+</div>
+
+<!-- ── SETTINGS SHEET ── -->
+<div class="sheet-backdrop" id="settingsSheet" onclick="closeSheet('settingsSheet')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">⚙️ Settings & Theme</div>
+    <div class="spacer"></div>
+    <div style="font-size:12px;color:var(--txt2);margin-bottom:8px;">Theme</div>
+    <div class="btn-row-group">
+      <button class="btn btn-outline" onclick="setTheme('light')">☀️ Light</button>
+      <button class="btn btn-outline" onclick="setTheme('dark')">🌙 Dark</button>
+    </div>
+    <div style="font-size:12px;color:var(--txt2);margin-bottom:8px;margin-top:10px;">Database</div>
+    <button class="btn btn-danger btn-full btn-sm" onclick="clearDatabase();closeSheet('settingsSheet')">🗑 Clear All BOMs</button>
+    <div style="height:10px;"></div>
+    <button class="btn btn-outline btn-full btn-sm" onclick="closeSheet('settingsSheet')">Close</button>
+  </div>
+</div>
+
+<!-- ── SCRIPT ── -->
+<script>
+// ============================
+// DATA MODEL (full cascade data)
+// ============================
+const MD = {};
+function sec(name,subsystems,components,specs){MD[name]={subsystems,components:components||{},specs:specs||{}};}
+
+sec("Reheater Furnace",
+  ["Civil & Structural","Refractory & Insulation","Charging Pusher","Roller Assemblies","Hydraulics","Combustion & Heating","Air System","Fuel / Oil System","Oil Heater System","Control & Instrumentation","Flue Gas & Exhaust","Water Cooling System","Structural Steel & Platforms","Emergency Systems"],
+  {"Civil & Structural":["Anchor Bolts","Foundation Bolts","Grout Pads","Structural Channels","Base Plates","Grating Panels","Handrails","Ladders","Steel Chequered Plate","UB Sections"],"Refractory & Insulation":["Hot Face Bricks","Insulating Bricks","Ceramic Fibre Blanket","Castable Refractory","Expansion Joint Rope","Refractory Cement","Ceramic Fibre Board","Gunning Mix"],"Charging Pusher":["Hydraulic Cylinder","Drive Motor","Gearbox","Push Beam","Guide Wheels","Limit Switches","Proximity Sensors","Linear Position Transducer"],"Roller Assemblies":["Roller Shaft","Roller Body","Drive Sprocket","Chain Links","Bearings","Coupling","Seals","Roller Frame"],"Hydraulics":["Hydraulic Pump","Relief Valve","Directional Control Valve","Check Valve","Accumulator","Oil Cooler","Filter Element","Hydraulic Cylinder"],"Combustion & Heating":["Burner","Ignition Transformer","Flame Scanner","Solenoid Valve","Nozzle","Gas Train Assembly","UV Detector","Pilot Assembly","Spark Electrode"],"Air System":["Blower","Inlet Filter","Butterfly Valve","Flow Meter","Flexible Duct","Silencer","Air Preheater","Damper Actuator","Axial Fan"],"Fuel / Oil System":["Oil Pump","Strainer","Pressure Regulator","Flow Control Valve","Oil Meter","Solenoid Cut-off Valve","Relief Valve","Flexible Hose"],"Oil Heater System":["Oil Heater Element","Thermostat","Temperature Controller","Overheat Cutout","Circulation Pump","Bypass Valve","Pressure Gauge","Heat Exchanger"],"Control & Instrumentation":["Thermocouple","RTD Sensor","Pressure Transmitter","Flow Transmitter","Level Switch","PLC Module","HMI Panel","Junction Box","Cable Gland","Signal Conditioner"],"Flue Gas & Exhaust":["Flue Duct Section","Expansion Joint","Draught Fan","Stack Liner","Induced Draft Fan","Stack Damper","Flue Gas Damper","Emission Monitor"],"Water Cooling System":["Water Header Pipe","Cooling Spray Nozzle","Flow Control Valve","Temperature Sensor","Pressure Gauge","Gate Valve","Non-Return Valve","Pump"],"Structural Steel & Platforms":["Access Stair Tread","Handrail Post","Grating Panel","Toe Plate","Stair Stringer","Platform Beam","Chequered Plate","Fall Arrest Anchor"],"Emergency Systems":["Emergency Shut-off Valve","Pressure Relief Valve","Rupture Disc","Emergency Stop Button","Safety PLC","Fusible Link","Fire Suppression Nozzle","Smoke Detector"]},
+  {"Anchor Bolts":["M30×500mm Gr.8.8 HDG","M24×400mm Gr.8.8 Zn","M20×300mm Gr.4.6 HDG","M16×200mm Gr.4.6 Zn","M36×600mm Gr.10.9 HDG"],"Foundation Bolts":["M30×600mm Gr.4.6 HDG","M24×500mm Gr.4.6 Zn","M20×400mm Gr.4.6 HDG","M36×800mm Gr.4.6 HDG"],"Base Plates":["300×300×20mm S275","400×400×25mm S275","500×500×30mm S355","600×600×35mm S355"],"Hot Face Bricks":["230×114×65mm Al₂O₃ 75% 1600°C","230×114×65mm Al₂O₃ 60% 1500°C","230×114×75mm Al₂O₃ 85% 1700°C","345×114×65mm Silica 96% 1650°C","230×76×65mm Basic MgO 85% 1750°C"],"Insulating Bricks":["230×114×65mm K23 1260°C","230×114×65mm K26 1430°C","230×114×65mm K28 1540°C","230×114×65mm K30 1650°C"],"Ceramic Fibre Blanket":["25mm 96kg/m³ 1260°C","50mm 128kg/m³ 1400°C","25mm 128kg/m³ 1400°C","50mm 96kg/m³ 1260°C"],"Castable Refractory":["Al₂O₃ 60% 1500°C Medium Duty","Al₂O₃ 70% 1600°C Heavy Duty","Al₂O₃ 80% 1700°C Super Duty","SiC 85% 1650°C Abrasion Resist"],"Hydraulic Cylinder":["Bore 200mm Rod 100mm Stroke 1500mm 160 bar","Bore 125mm Rod 70mm Stroke 800mm 250 bar","Bore 160mm Rod 90mm Stroke 1200mm 200 bar","Bore 250mm Rod 140mm Stroke 2000mm 100 bar"],"Drive Motor":["7.5 kW IE3 1450rpm B3 IP55","11 kW IE3 1450rpm B3 IP55","15 kW IE3 1450rpm TEFC IP55","22 kW IE3 1450rpm IP55","37 kW IE3 1450rpm TEFC IP55"],"Gearbox":["Helical inline i=10:1 11kW","Helical inline i=20:1 15kW","Bevel-helical i=15:1 22kW","Worm i=40:1 7.5kW"],"Hydraulic Pump":["Gear pump 18cc/rev 250 bar SAE B","Axial piston 28cc/rev 350 bar variable","Vane pump 22cc/rev 175 bar","Gear pump 35cc/rev 200 bar SAE C"],"Relief Valve":["Direct acting PN250 G½ Cracking 175 bar","Pilot operated PN350 G¾ 250 bar","Direct acting PN160 G½ 150 bar"],"Accumulator":["50L bladder 350 bar N₂ pre-charge","20L bladder 250 bar N₂","80L piston 315 bar N₂"],"Burner":["1.2 MW nozzle mix oil/gas dual","0.6 MW premix gas only low-NOx","2.4 MW staged-air HFO modulating","1.8 MW regenerative gas 30% saving","3.0 MW dual-fuel turndown 10:1"],"Blower":["Side channel 2.2kW 200 mbar 400 m³/h","Centrifugal 3kW 250 mbar 500 m³/h","Axial 1.1kW 150 mbar 250 m³/h"],"Oil Pump":["Gear pump 11cc/rev 160 bar SAE A","Gear pump 18cc/rev 200 bar SAE B","Vane pump 12cc/rev 140 bar"],"Thermocouple":["K-type 1300°C SS316 sheath Ø8×500mm duplex","K-type 800°C SS310 sheath Ø6×300mm","S-type 1600°C ceramic sheath Ø8 PtRh10-Pt","N-type 1200°C Inconel sheath Ø10×800mm"],"RTD Sensor":["PT100 3-wire 4-20mA head-mount 0–400°C","PT100 4-wire 0–600°C SS304 sheath Ø6","PT1000 2-wire 0–200°C IP67"],"Pressure Transmitter":["0–10 bar 4-20mA 2-wire ¼ BSP SS316","0–25 bar 4-20mA HART ½ BSP SIL-2","0–40 bar 4-20mA flush diaphragm","0–60 bar 4-20mA + HART ¼ NPT"],"PLC Module":["DI/DO 16/16 24VDC Siemens S7-300","AI/AO 8/4 4-20mA S7-300","CPU S7-1500 300KB PN/DP","Safety module SIL-2 F-DI/F-DO"],"HMI Panel":["15\" TFT Touch Siemens TP1500 Comfort","10\" TFT Touch Siemens TP1000","7\" TFT Touch Siemens TP700"],"Pressure Gauge":["DN100 0–16 bar SS Bourdon glycerine-filled","DN100 0–40 bar SS Bourdon","DN63 0–10 bar brass Bourdon"]}
+);
+
+sec("Rolling Mill Stands",
+  ["Roll Assembly","Drive System","Cooling System","Lubrication System","Safety Guards","Screw-Down System","Balance System","Guides & Repeaters"],
+  {"Roll Assembly":["Work Roll","Backup Roll","Roll Neck Bearing","Roll Chock","Roll Collar","Locking Ring","Roll Key","Chock Liner"],"Drive System":["Main Drive Motor","DC Drive Controller","Spindle Assembly","Universal Joint","Intermediate Shaft","Pinion Gear","Gearbox Unit","Drive Coupling"],"Cooling System":["Water Header Pipe","Cooling Nozzle","Collector Ring","Drain Pan","Ball Valve","Flow Meter","Solenoid Valve","Hose Assembly"],"Lubrication System":["Oil-Air Mixing Block","Progressive Distributor","Lubrication Pump","Oil Reservoir","Filter Unit","Pressure Switch","Level Sensor","Distribution Tubing"],"Safety Guards":["Interlock Switch","Safety Gate","Light Curtain","Emergency Stop Button","Safety Relay","Warning Beacon","Guard Panel","Safety PLC"]},
+  {"Work Roll":["Ø320×800mm Adamite HSD 60-65 neck Ø180","Ø280×700mm ICDP HSD 65-70","Ø350×900mm HSS M2 HSD 75-80","Ø250×650mm Nodular CI HSD 55-60","Ø400×1000mm HSS premium HSD 78-82"],"Backup Roll":["Ø600×1800mm Forged steel HSD 35-40 42CrMo","Ø550×1600mm Cast steel HSD 30-35","Ø650×2000mm Forged alloy steel HSD 38-42"],"Roll Neck Bearing":["Four-Row Taper TDO d=300 D=420 B=280mm","Spherical Roller d=280 D=380 B=75mm","Four-Row Cyl. Roller d=320 D=450 B=290mm"],"Main Drive Motor":["DC 500kW 600rpm 420V DPFV","AC 355kW 740rpm 400V VFD IE3","DC 250kW 750rpm 440V","AC 630kW 740rpm 400V VFD","DC 800kW 500rpm 440V DPFV"],"DC Drive Controller":["ABB DCS880 500kW 12-pulse","Siemens SIMOREG DC Master 250kW","ABB DCS880 800kW 12-pulse"],"Spindle Assembly":["Sliding key spindle 315kW","Universal joint spindle 220kW","Gear-type spindle 500kW"],"Gearbox Unit":["Bevel-helical ratio 3.15:1 500kW","Helical inline ratio 2.5:1 355kW","Planetary ratio 6:1 250kW"],"Cooling Nozzle":["Flat fan 15° PN16 SS316 Ø8 outlet","Full cone 60° PN16 SS316 Ø10","Flat fan 25° PN16 brass Ø8"],"Lubrication Pump":["Gear pump 2.2cc/rev 50 bar","Gear pump 5.5cc/rev 80 bar","Plunger pump 1.5cc/rev 100 bar"],"Progressive Distributor":["4-outlet SSV Ø6mm outlets","6-outlet SSV Ø6mm outlets","8-outlet SSV Ø8mm outlets"],"Interlock Switch":["Door interlock EN ISO 14119 NC+NO 24VDC","Magnetic interlock EMSS IEC 60947-5-3","Tongue interlock SIL-2 SS316"]}
+);
+
+sec("Roughing Mill",
+  ["Stand Structure","Rolls & Chocks","Drive Train","Entry/Exit Guides","Descaler","Crop Shear","Cooling","Bearings & Seals"],
+  {"Rolls & Chocks":["Roughing Roll","Roll Chock","Screw-Down Mechanism","Balance Cylinder","Wedge Assembly","Roll Lock Pin","Anti-friction Pad","Chock Liner"],"Drive Train":["AC Motor – Roughing","Pinion Gearbox","Universal Spindle","Intermediate Shaft","Coupling Disc","Locking Plate","Drive Key","Speed Sensor"],"Descaler":["High-Pressure Pump","Nozzle Header","Descaling Nozzle","Solenoid Valve","Pressure Relief Valve","Filter Housing","Header Pipe","Drain Valve"],"Crop Shear":["Shear Blade (Top)","Shear Blade (Bottom)","Blade Clamp","Hydraulic Shear Cylinder","Scrap Guide Chute","Shear Frame","Position Encoder","Shear Motor"],"Bearings & Seals":["Four-Row Tapered Bearing","Spherical Roller Bearing","Labyrinth Seal","V-Ring Seal","Seal Housing","Adapter Sleeve","Lock Nut","Bearing Cover"]},
+  {"Roughing Roll":["Ø500×1200mm Adamite HSD 40-45","Ø450×1000mm Ductile iron HSD 35-40","Ø550×1400mm Cast alloy steel HSD 30-35","Ø600×1500mm Adamite HSD 40-45"],"Roll Chock":["Cast steel GS-52 d=460 bore","Forged steel 34CrNiMo6 d=500 bore","Cast iron GGG70 d=420 bore"],"Screw-Down Mechanism":["Worm screw M140 pitch 14mm 35CrMo","Worm screw M120 pitch 12mm 34CrNiMo6","Ball screw Ø120mm lead 20mm"],"AC Motor – Roughing":["AC 500kW 740rpm 400V VFD IP54","AC 355kW 740rpm 400V IE3","AC 800kW 600rpm 6.6kV VFD"],"Pinion Gearbox":["Helical ratio 3.15:1 500kW C/C 700mm","Helical ratio 2.5:1 355kW C/C 630mm","Helical ratio 4:1 800kW C/C 800mm"],"High-Pressure Pump":["Triplex plunger 250 bar 120 L/min 45kW","Triplex plunger 200 bar 80 L/min 30kW","Quintuplex 250 bar 200 L/min 75kW"],"Descaling Nozzle":["Flat fan 15° SS316 PN250 14 L/min @200bar","Flat fan 25° carbide tip PN350 10 L/min","V-jet SS316 PN250 18 L/min @180bar"],"Shear Blade (Top)":["400×120×50mm D2 HRC 60-62","350×100×45mm H13 HRC 48-52","500×140×60mm DC53 HRC 62"],"Shear Blade (Bottom)":["400×120×50mm D2 HRC 60-62","350×100×45mm H13 HRC 48-52","500×140×60mm DC53 HRC 62"],"Four-Row Tapered Bearing":["d=300 D=420 B=280mm","d=320 D=450 B=290mm","d=260 D=360 B=260mm"],"Spherical Roller Bearing":["22332 E d=160 D=340 B=114mm","22330 E d=150 D=320 B=108mm"],"Labyrinth Seal":["Split type SS316 Ø320 shaft","Split type brass Ø280 shaft"],"V-Ring Seal":["Ø300mm NBR SR type shaft seal","Ø280mm NBR SR type","Ø320mm FKM SR type high temp"]}
+);
+
+sec("Intermediate & Finishing Mill",
+  ["Finishing Stands","Wire Rod Block","Cooling Conveyor","Flying Shear","Quenching System","Loopers","Temperature Control"],
+  {"Finishing Stands":["Stand Frame","Work Roll (Finishing)","Top Roll","Bottom Roll","Bearing System","Cassette System","Roll Collar","Chock"],"Wire Rod Block":["Block Frame","Block Roll","Roll Cassette","Block Drive Motor","Block Cooling Nozzle","Block Gearbox"],"Flying Shear":["Shear Drum","Shear Blade (Flying)","Shear Motor","Cam Mechanism","Shear Housing","Position Encoder"],"Quenching System":["Quench Box","Quench Nozzle","Temperature Sensor","Control Valve","Water Header","Flow Meter"],"Temperature Control":["Infrared Pyrometer","PID Temperature Controller","Modulating Water Control Valve","Data Logger"]},
+  {"Work Roll (Finishing)":["Ø220×500mm HSS M2 HSD 78-82","Ø200×450mm ICDP HSD 70-75","Ø180×400mm Adamite HSD 65-70","Ø240×550mm HSS premium V-Co HSD 82-86"],"Block Roll":["Ø140×200mm WC/Co carbide HRA86 bore Ø60","Ø120×180mm tungsten carbide HRA88","Ø160×220mm HSS high vanadium HSD80+"],"Block Drive Motor":["AC 250kW 1480rpm 400V VFD IE3","AC 315kW 1480rpm 400V VFD","AC 200kW 1480rpm 400V VFD IE3"],"Shear Blade (Flying)":["200×80×40mm D2 HRC 60-64","180×70×35mm H13 HRC 48-52","250×90×45mm M2 HSS HRC 62-65"],"Infrared Pyrometer":["600–1400°C 4-20mA 1.0µm lens Ø50mm IP65","400–1200°C 0-10V 2-colour 1.6µm","800–1800°C 4-20mA 0.9µm purge air"],"PID Temperature Controller":["Eurotherm 3508 DIN 1/4 relay+SSR o/p","Omron E5CC-B 48×48 relay o/p","Yokogawa UT55A RS485 4-20mA o/p"],"Quench Nozzle":["Full cone 60° SS316 3 bar 15 L/min","Flat fan 25° SS316 5 bar 20 L/min","Air-mist SS316 2.5 bar air+2 bar water"]}
+);
+
+sec("Bar & Section Mill",
+  ["Breakdown Stands","Intermediate Stands","Finishing Stands (Bar)","Cooling Bed","Cold Shear","Bundling & Stacking","Transfer Tables","Straightener"],
+  {"Breakdown Stands":["Breakdown Housing","Breakdown Roll","Entry Guide Box","Exit Guide Box","Drive Shaft","Coupling","Screw-Down Nut"],"Cold Shear":["Fixed Shear Blade","Moving Shear Blade","Blade Holder","Hydraulic Cylinder","Hold-down Pad","Scrap Bin","Position Sensor"],"Bundling & Stacking":["Bundler Ring","Tying Head","Wire Reel","Stacking Finger","Tilting Apron","Chain Conveyor","Counting Sensor"],"Cooling Bed":["Ratchet Bar","Ratchet Pawl","Drive Shaft","Cam Disc","Transfer Rail","Alignment Plate","Drive Chain"],"Straightener":["Straightening Roll (Top)","Straightening Roll (Bottom)","Roll Bearing","Adjusting Screw","Worm Jack","Lock Nut"]},
+  {"Breakdown Roll":["Ø400×900mm Adamite HSD 38-43","Ø450×1000mm Cast steel HSD 30-35","Ø350×800mm Ductile iron HSD 35-40"],"Fixed Shear Blade":["500×150×60mm D2 HRC 60-62","400×120×50mm H13 HRC 48-52","600×180×70mm M2 HSS HRC 62-65"],"Moving Shear Blade":["500×150×60mm D2 HRC 60-62","400×120×50mm H13 HRC 48-52"],"Hydraulic Cylinder":["Bore 200mm Stroke 200mm 250 bar","Bore 160mm Stroke 250mm 250 bar"],"Straightening Roll (Top)":["Ø350×600mm Forged 42CrMo4 HRC 55-58","Ø300×500mm Forged alloy steel HRC 52-55","Ø400×700mm Forged 42CrMo4 HRC 55-58"],"Straightening Roll (Bottom)":["Ø350×600mm Forged 42CrMo4 HRC 55-58","Ø300×500mm Forged alloy steel HRC 52-55"],"Ratchet Bar":["L=6000mm pitch 100mm S355 hardened","L=6000mm pitch 125mm S355 hardened"],"Tying Head":["Wire tie 2.0mm Ø 5 wraps automatic","Steel strap 16mm pneumatic auto"]}
+);
+
+sec("Billet Handling & CCM",
+  ["Continuous Caster","Tundish","Mould Assembly","Secondary Cooling","Dummy Bar System","Billet Cut-off","Billet Roller Table","Mould Oscillation"],
+  {"Tundish":["Tundish Shell","Permanent Lining Brick","Impact Pad","Slide Gate Plate","Ladle Shroud","Dam & Weir","Tundish Cover","Tundish Drain Plug"],"Mould Assembly":["Copper Mould Tube","Water Box","Mould Clamp Bolt","Backing Plate","O-Ring Set","Water Seal","Taper Adjustment Screw","Level Sensor"],"Secondary Cooling":["Spray Nozzle","Cooling Segment","Segment Bearing","Support Roll","Nozzle Holder","Cooling Water Manifold","Segment Coupling"],"Billet Cut-off":["Oxy-Fuel Torch","Torch Carriage Drive","Cutting Control Valve","Oxygen Hose","LPG/NG Hose","Scrap Chute","Torch Height Sensor","Carriage Motor"]},
+  {"Copper Mould Tube":["Square 130×130×900mm CuAg0.1 4° taper chrome","Square 150×150×900mm CuAg0.1 3.5° taper","Square 160×160×900mm CuCr1Zr nickel plated"],"Water Box":["SS316 single-piece DN50 in/out PN16","SS304 split-type DN65 PN16","SS316 multi-zone DN80 PN25"],"Slide Gate Plate":["Al₂O₃-C 75% Ø100mm hole 230×150×30mm","Al₂O₃-C 80% Ø110mm 250×160×35mm","MgO-C 85% Ø90mm 200×140×28mm"],"Ladle Shroud":["ZrO₂ 90% OD120×ID60×L900mm","ZrO₂-C OD130×ID65×L950mm","Al₂O₃-C OD110×ID55×L850mm"],"Spray Nozzle":["Flat fan 90° SS316 3 bar 12 L/min","Full cone SS316 5 bar 8 L/min","Air-mist SS 2.5 bar air+2 bar water"],"Oxy-Fuel Torch":["O₂/LPG manual 600mm barrel stainless","O₂/NG auto carriage-mounted 800mm","O₂/LPG auto 600mm with cut-off valve"]}
+);
+
+sec("Melt Shop / EAF",
+  ["Electric Arc Furnace","Ladle Furnace","Electrode System","Transformer & HV","Fume Extraction","Charging System","Slag Handling","Refractory (EAF)"],
+  {"Electrode System":["Electrode (Graphite)","Electrode Clamp","Electrode Arm","Electrode Column Mast","Cable & Flexible Bus","Electrode Cooling Nipple","Electrode Length Sensor"],"Transformer & HV":["Furnace Transformer","Tap Changer","HV Vacuum Breaker","Series Reactor","Copper Bus Tube","Flexible Bus Bar","Current Transformer"],"Fume Extraction":["Primary Extraction Hood","Doghouse Panel","Duct Section","Baghouse Filter Bag","ID Fan","Fan Motor","Stack Damper","Expansion Joint"],"Refractory (EAF)":["MgO-C Brick","Bottom Ramming Mix","Delta Brick","Wear Zone Brick","Tap Hole Mix","Spray Coating","Gunning Mix","Magnesia Board"]},
+  {"Electrode (Graphite)":["Ø600mm UHP L=1800mm bulk density ≥1.70","Ø500mm HP L=1800mm resistivity ≤5.5 µΩm","Ø700mm UHP L=2400mm CTE ≤0.5×10⁻⁶"],"Electrode Clamp":["Hydraulic clamp Ø600 force 150kN","Hydraulic clamp Ø500 force 120kN","Pneumatic clamp Ø550 force 100kN"],"Furnace Transformer":["60 MVA 33/0.6kV OLTC ONAN","40 MVA 11/0.6kV OLTC ONAN","80 MVA 33/0.6kV OLTC ONAF","100 MVA 33/0.6kV OLTC OFWF"],"Tap Changer":["On-load tap changer ±8 steps 33kV","On-load tap changer ±10 steps 33kV"],"Baghouse Filter Bag":["PTFE membrane 140°C Ø160×6000mm","Fiberglass 260°C Ø130×5000mm"],"MgO-C Brick":["230×114×65mm MgO 75% C14% 1800°C","230×114×76mm MgO 80% C12% 1850°C","345×114×65mm MgO 70% C16% 1750°C"]}
+);
+
+sec("Power & Electrical Distribution",
+  ["HV Switchgear","MV Distribution","LV Motor Control","Transformers","UPS & Battery","Power Factor Correction","Earthing System","Cable Management","Protection Relays"],
+  {"HV Switchgear":["Vacuum Circuit Breaker","Disconnector Switch","Earthing Switch","Current Transformer","Voltage Transformer","Protection Relay","Bus Bar"],"LV Motor Control":["MCCB","Contactor","Thermal Overload Relay","Variable Frequency Drive","Soft Starter","Motor Protection Relay","Earth Leakage CB"],"Transformers":["Main Transformer (Oil)","Distribution Transformer (Dry)","Buchholz Relay","Conservator Tank","Silica Gel Breather","Cooling Fan","Temperature Relay"],"UPS & Battery":["UPS Module","VRLA Battery","Battery Monitoring Unit","Static Bypass Switch","Battery Disconnect","UPS Charger Module","Battery Rack"],"Protection Relays":["Numerical O/C Relay","Differential Protection Relay","Earth Fault Relay","Thermal Replica Relay","Lockout Relay","Distance Relay"]},
+  {"Vacuum Circuit Breaker":["11kV 630A 25kA 3-phase drawout spring-stored","33kV 1250A 31.5kA drawout","6.6kV 400A 20kA withdrawable"],"Current Transformer":["11kV 400/5A 15VA Cl.0.5 ring type","33kV 800/5A 15VA Cl.0.5","11kV 200/5A 10VA Cl.1"],"MCCB":["400A 3P 36kA @415V adjustable thermal-mag","250A 3P 36kA adjustable","630A 3P 50kA electronic trip LSI"],"Contactor":["LC1D80 80A 3P 24VDC coil IEC 60947","LC1D50 50A 3P 24VDC coil","LC1D115 115A 3P 24VAC coil"],"Variable Frequency Drive":["ABB ACS880 22kW 400V IP21","ABB ACS880 75kW 400V IP21","Siemens G120 37kW PN interface"],"Main Transformer (Oil)":["20 MVA 33/11kV ONAN OLTC DYn11","10 MVA 33/0.415kV ONAN DYn11","5 MVA 11/0.415kV ONAN Dyn11"],"UPS Module":["10 kVA online double conversion 400V","20 kVA online 400V 3-phase in/out","6 kVA online 230V single phase"],"VRLA Battery":["12V 100Ah AGM C10 IP44 20yr design","12V 200Ah AGM C10","12V 65Ah AGM UPS grade"],"Numerical O/C Relay":["SEL-751 50/51 Overcurrent ANSI/IEC","GE D60 50/51 multifunction line relay"],"Differential Protection Relay":["ABB RET615 transformer diff 87T","SEL-487E transformer diff 87T"]}
+);
+
+sec("Utilities & Services",
+  ["Compressed Air","Industrial Water","Fire Protection","HVAC & Ventilation","Gas Distribution","Overhead Cranes","Workshop Equipment"],
+  {"Compressed Air":["Rotary Screw Compressor","Air Receiver","Refrigerant Dryer","Desiccant Dryer","Coalescing Filter","Particulate Filter","Pressure Regulator"],"Industrial Water":["Centrifugal Pump","Cooling Tower Fill Pack","Chemical Dosing Pump","Softener Resin Bed","Pressure Switch","Flow Meter","Level Controller"],"Fire Protection":["Sprinkler Head","Deluge Valve","Foam Concentrate Tank","Smoke Detector","Heat Detector","Alarm Bell","Fire Hose Reel"],"Overhead Cranes":["Bridge Crane Motor","Wire Rope Hoist","Hook Block","Travel Motor","End Carriage Bearing","Control Pendant","Safety Limit Switch"],"Workshop Equipment":["Centre Lathe","Vertical Mill","Bench Grinder","Radial Drill","Welding Machine","Press Brake","Hydraulic Press"]},
+  {"Rotary Screw Compressor":["37kW 7.5 bar 6.2 m³/min IE3 IP55 variable speed","55kW 8 bar 9.2 m³/min IE3","22kW 7 bar 3.7 m³/min IE3"],"Air Receiver":["500L 11 bar SS304 ASME coded","1000L 11 bar carbon steel CE marked","2000L 11 bar carbon steel"],"Centrifugal Pump":["75kW 800 m³/h 32m head DN300 SS316","55kW 600 m³/h 25m head DN250","37kW 400 m³/h 35m head DN200"],"Wire Rope Hoist":["10t SWL 10m lift 415V 4/1 reeving","5t SWL 12m lift dual speed 2/1 reeving","20t SWL 15m lift VFD controlled"],"Hook Block":["10t swivel safety hook GR80","20t swivel safety hook GR80","32t twin-sheave swivel hook"],"Welding Machine":["MIG/MAG 500A 400V ESAB Aristo","TIG 300A 400V Lincoln Electric","MMA 400A 400V inverter"],"Sprinkler Head":["Standard response 68°C K=80 upright","Standard response 57°C K=80 pendent","Quick response 68°C K=115 upright"]}
+);
+
+sec("Maintenance & Spare Parts",
+  ["Bearings Stock","Seals & Gaskets","Fasteners","Hydraulic Spares","Drive Components","Safety & PPE","Hand Tools","Measuring Instruments"],
+  {"Bearings Stock":["Deep Groove Ball Bearing","Spherical Roller Bearing","Cylindrical Roller Bearing","Taper Roller Bearing","Angular Contact Ball Bearing","Needle Roller Bearing","Pillow Block Unit"],"Seals & Gaskets":["Radial Lip Seal","V-Ring Seal","Cassette Seal","O-Ring NBR","O-Ring Viton","Spiral Wound Gasket","Sheet Gasket","PTFE Tape"],"Fasteners":["Hex Head Bolt (8.8)","Hex Head Bolt (10.9)","Socket Head Cap Screw","Stud Bolt (B7)","Heavy Hex Nut","Nyloc Nut","Flat Washer","Spring Washer"],"Hydraulic Spares":["Piston Seal","Rod Seal","O-Ring Kit","Hose Assembly","BSP Elbow Fitting","Return Line Filter","Pressure Gauge","Quick-connect Coupling"],"Drive Components":["V-Belt SPB","V-Belt SPC","Roller Chain 1\" ANSI","Roller Chain 1¼\" ANSI","Master Link","Rubber Spider","Timing Belt HTD 5M","Taper Lock Bush"],"Safety & PPE":["Safety Helmet","Safety Boot S3","Safety Glasses","Face Shield","Nitrile Gloves","Heat-Resistant Gloves","Ear Defenders","Hi-Vis Vest","Safety Harness"],"Hand Tools":["Combination Spanner Set","Adjustable Spanner","Ball-Peen Hammer","Dead-Blow Mallet","Bearing Puller","Torque Wrench","Allen Key Set","Pipe Wrench"],"Measuring Instruments":["Digital Vernier Caliper","Outside Micrometer Set","Dial Test Indicator","Vibration Meter","Laser Alignment Tool","Feeler Gauge Set","Infrared Thermometer","Clamp Meter"]},
+  {"Deep Groove Ball Bearing":["6206-2RS C3 d=30 D=62 B=16 SKF/NSK","6210-2RS C3 d=50 D=90 B=20","6305-2RS C3 d=25 D=62 B=17","6312-2RS C3 d=60 D=130 B=31"],"Spherical Roller Bearing":["22222 E C3 d=110 D=200 B=53 SKF","22218 E C3 d=90 D=160 B=40","22226 E C3 d=130 D=230 B=64"],"Taper Roller Bearing":["30222 d=110 D=200 B=56mm","30220 d=100 D=180 B=49mm","32222 d=110 D=200 B=61mm"],"Hex Head Bolt (8.8)":["M12×50mm ISO4014 Gr.8.8 Zinc","M16×60mm ISO4014 Gr.8.8 Zinc","M20×80mm ISO4014 Gr.8.8 Zinc","M24×100mm ISO4014 Gr.8.8 HDG"],"Hex Head Bolt (10.9)":["M12×50mm ISO4014 Gr.10.9 Zinc","M16×60mm ISO4014 Gr.10.9 Zinc","M20×80mm ISO4014 Gr.10.9 Zinc"],"Socket Head Cap Screw":["M10×40mm ISO4762 Gr.12.9 Black","M12×50mm ISO4762 Gr.12.9 Black","M16×60mm ISO4762 Gr.12.9 Black"],"O-Ring NBR":["2.5mm CS×19.0 ID 70 Shore Nitrile","3.0mm CS×25.0 ID 70 Shore Nitrile","3.5mm CS×30.0 ID 70 Shore Nitrile"],"O-Ring Viton":["2.5mm CS×19.0 ID 75 Shore FKM","3.0mm CS×25.0 ID 75 Shore FKM"],"Radial Lip Seal":["30×52×10mm NBR single lip SS spring","40×62×10mm NBR double lip","50×72×10mm FKM single lip SS spring"],"V-Belt SPB":["SPB 1250 La=1250mm","SPB 1500 La=1500mm","SPB 1700 La=1700mm","SPB 2000 La=2000mm"],"Digital Vernier Caliper":["150mm 0.01mm resolution IP54 Mitutoyo","200mm 0.01mm resolution IP67","300mm 0.01mm resolution IP54"],"Torque Wrench":["20–100Nm 1/2\" drive ratchet","40–200Nm 1/2\" drive","100–340Nm 3/4\" drive"],"Vibration Meter":["SKF CMVL 3600 triaxial USB","Fluke 805 FC bearing checker","PCB 603C01 IEPE accelerometer"]}
+);
+
+// Roll Forming sections
+sec("Roll Forming – Coil Feeding",
+  ["Entry Section (Decoiler)","Entry Section (Straightener)","Entry Section (Feed Unit)"],
+  {"Entry Section (Decoiler)":["Mandrel (Motor-Driven)","Mandrel Segment","Mandrel Hydraulic Cylinder","Mandrel Bearing","Dancer Roll","Dancer Roll Potentiometer","Coil Support Arms","Coil Loading Trolley"],"Entry Section (Straightener)":["Straightener Frame","Top Roll (×3)","Bottom Roll (×4)","Roll Bearing","Top Roll Adjustment Screw","Drive Motor","Drive Gearbox"],"Entry Section (Feed Unit)":["Servo Feed Motor","Feed Roll — Top","Feed Roll — Bottom","Feed Roll Pneumatic Cylinder","Strip Edge Guide","Strip Sensor","Encoder"]},
+  {"Mandrel (Motor-Driven)":["Ø450–600mm expanding 10t motorised","Ø508mm expanding 5t","Ø610mm expanding 10t"],"Dancer Roll":["Ø150×600mm rubber-covered SS core","Ø150×1300mm rubber-covered SS core"],"Top Roll (×3)":["Ø80×600mm D2 HRC60 SS shaft","Ø100×1300mm D2 HRC60 SS shaft"],"Bottom Roll (×4)":["Ø80×600mm D2 HRC60 SS shaft","Ø100×1300mm D2 HRC60 SS shaft"],"Drive Motor":["5.5kW IE3 1450rpm B3 IP55","7.5kW IE3 1450rpm B3 IP55","11kW IE3 1450rpm IP55"],"Servo Feed Motor":["7.5kW servo AC 1500rpm encoder","11kW servo AC 1500rpm encoder"],"Encoder":["Incremental 1024 PPR 10mm shaft IP65","Absolute 12-bit SSI 10mm shaft IP67"]}
+);
+
+sec("Roll Forming – Forming Section",
+  ["Forming Stands","Main Drive Line","Central Lubrication"],
+  {"Forming Stands":["Stand Housing (Drive Side)","Stand Housing (Op. Side)","Top Shaft","Bottom Shaft","Top Forming Roll","Bottom Forming Roll","Side Roll (Left)","Side Roll (Right)","Top Shaft Bearing","Bottom Shaft Bearing","Shaft Coupling","Vertical Adj. Screw","Horizontal Adj. Screw","Grease Nipple"],"Main Drive Line":["Main Drive Motor","Main Drive VFD","Main Gearbox","Line Shaft","Line Shaft Bearing","Bevel Gearbox","Drive Coupling"],"Central Lubrication":["Central Grease Pump","Grease Pump Motor","Grease Distributor Block","Lube Line","Lube Cycle Timer"]},
+  {"Top Forming Roll":["D2 HRC62 Ø180×50mm profile stand","GCr15 HRC60-64 Ø180×50mm","D2 HRC62 Ø200×60mm profile stand"],"Bottom Forming Roll":["D2 HRC62 Ø180×50mm profile stand","GCr15 HRC60-64 Ø180×50mm","D2 HRC62 Ø200×60mm profile stand"],"Side Roll (Left)":["D2 HRC62 Ø100×30mm","D2 HRC62 Ø120×40mm","D2 HRC62 Ø80×25mm"],"Side Roll (Right)":["D2 HRC62 Ø100×30mm","D2 HRC62 Ø120×40mm"],"Main Drive Motor":["22kW IE3 1480rpm 400V B3","37kW IE3 1480rpm 400V B3","45kW IE3 1480rpm 400V B3"],"Main Drive VFD":["ABB ACS880 22kW 400V PN","ABB ACS880 37kW 400V PN","Siemens G120 22kW 400V"],"Main Gearbox":["Helical parallel shaft i=5:1 22kW","Helical parallel shaft i=5:1 37kW","Bevel-helical i=8:1 45kW"],"Central Grease Pump":["Electric 4L reservoir 24VDC 250 bar","Electric 10L reservoir 24VDC 200 bar"],"Grease Distributor Block":["4-outlet SSV progressive Ø6mm","6-outlet SSV progressive Ø6mm"]}
+);
+
+sec("Roll Forming – Cutting & Shearing",
+  ["Flying Shear Structure","Flying Shear Blades","Drive — Cut","Drive — Travel","Control & Pneumatics","Hydraulics"],
+  {"Flying Shear Blades":["Upper Blade","Lower Blade","Blade Bolt"],"Drive — Cut":["Cutting Cylinder","Return Spring"],"Drive — Travel":["Servo Motor (Sync)","Ball Screw","Linear Encoder"],"Control & Pneumatics":["Shear Controller","Length Encoder","HMD Sensor","Air Cylinder (Hold-down)","Air Regulator","Solenoid Valve"],"Hydraulics":["HP Mini Pack","Proportional DCV"]},
+  {"Upper Blade":["D2 tool steel 300×60×30mm HRC62","D2 tool steel 350×70×35mm HRC62","H13 tool steel 300×60×30mm HRC52"],"Lower Blade":["D2 tool steel 300×60×30mm HRC62","D2 tool steel 350×70×35mm HRC62"],"Cutting Cylinder":["Bore 125mm Stroke 100mm 200 bar","Bore 140mm Stroke 120mm 200 bar"],"Servo Motor (Sync)":["3kW servo AC 3000rpm encoder","5kW servo AC 3000rpm encoder"],"Ball Screw":["Ø32mm pitch 5mm C3 preloaded","Ø40mm pitch 10mm C3 preloaded"],"Shear Controller":["Siemens S7-1500 TM-PTO CNC","Beckhoff CX5130 EtherCAT"],"HP Mini Pack":["10L tank 3kW pump 250 bar 415V","20L tank 5.5kW pump 250 bar 415V"]}
+);
+
+sec("Roll Forming – Runout, Stacking & Packing",
+  ["Exit Belt Conveyor","Stacker","Bundler / Strapping","Labelling"],
+  {"Exit Belt Conveyor":["Conveyor Frame","Conveyor Belt","Drive Drum","Tail Drum","Idler Roller","Conveyor Motor","Conveyor Gearbox","Belt Tensioner","Belt Scraper"],"Stacker":["Stacker Frame","Stack Support Fingers","Lift Cylinder","Ejector Cylinder","Bundle Counter","Proximity Switch"],"Bundler / Strapping":["Strapping Head","Steel Strap Coil","Strap Tensioner (Pneumatic)"],"Labelling":["Label Printer","Label Paper Roll"]},
+  {"Conveyor Belt":["600mm wide rubber PVC top 6m","800mm wide rubber PVC top 8m","1000mm wide rubber EP 10m"],"Conveyor Motor":["2.2kW IE3 1450rpm B3 IP55","3.7kW IE3 1450rpm B3 IP55","5.5kW IE3 1450rpm B3 IP55"],"Lift Cylinder":["Bore 125mm Stroke 500mm 160 bar","Bore 160mm Stroke 600mm 160 bar"],"Strapping Head":["Auto steel strap 19mm pneumatic","Auto steel strap 25mm pneumatic"],"Steel Strap Coil":["19mm×0.6mm 12kN break load galv coil","25mm×0.8mm 20kN break load galv coil"],"Label Printer":["Zebra ZT411 300dpi 6\" media LAN","Zebra ZT421 203dpi 8\" media LAN"]}
+);
+
+sec("Roll Forming – Hydraulic System",
+  ["Central HPU","Distribution","Piping & Hoses"],
+  {"Central HPU":["Main Pump A","Main Pump B","Pump Motor A","Pump Motor B","Reservoir","Return Filter","Suction Strainer","Air Breather","Level Switch (Low)","Temperature Switch","Oil Cooler","Electric Heater","System Relief Valve","Accumulator — Main","Pressure Transmitter","Flow Meter"],"Distribution":["Zone Isolation Valve","Zone Pressure Gauge","HP Steel Pipe","HP Hose Assembly","DCV Manifold"],"Piping & Hoses":["HP Hose 10mm ID","HP Hose 12mm ID","HP Hose 16mm ID","BSPP Adapter M12","BSPP Adapter M16","BSP Elbow M16","BSP Tee M12"]},
+  {"Main Pump A":["Rexroth A10VO100 250 bar variable","Rexroth A10VO140 250 bar variable"],"Pump Motor A":["30kW IE3 1480rpm B3 IP55","45kW IE3 1480rpm B3 IP55"],"Reservoir":["2000L mild steel painted internal","2500L stainless SS316 internal"],"Return Filter":["10µm β10≥200 PN16 DN50 Pall","25µm β25≥200 PN16 DN80 Hydac"],"Accumulator — Main":["50L 350 bar nitrogen bladder","80L 350 bar nitrogen bladder"],"System Relief Valve":["Direct acting PN350 250 bar G¾","Pilot operated PN350 315 bar G1"]}
+);
+
+sec("Roll Forming – Electrical & Controls",
+  ["Main Switchgear","Motor Starters","Variable Speed Drives","PLC & HMI","Cabling","Containment"],
+  {"Main Switchgear":["Main Incomer MCCB","Bus Bar","MCC Panel (Draw-out)","Earth Bar","Surge Protection Device"],"Motor Starters":["DOL Starter 5.5kW","DOL Starter 11kW","Star-Delta Starter 22kW","Thermal Overload Relay","MCB 3-Phase","Contactor"],"Variable Speed Drives":["5.5kW VFD","11kW VFD","22kW VFD","37kW VFD","Servo Drive"],"PLC & HMI":["PLC CPU","Digital Input Module","Digital Output Module","Analog Input Module","HMI Touchscreen","Safety PLC"],"Cabling":["Power Cable 4C×4 mm²","Power Cable 4C×10 mm²","Control Cable 2C×1.5 mm²","Instrumentation Cable 2C×1.5 mm²","Servo Cable 4C×2.5 mm²"],"Containment":["Cable Tray 300 mm","Cable Tray 150 mm","Steel Conduit 25 mm","Steel Conduit 32 mm","Junction Box 300×300 mm","Conduit Gland M25"]},
+  {"Main Incomer MCCB":["630A 415V 4-pole MCCB 50kA","800A 415V 4-pole MCCB 50kA"],"DOL Starter 5.5kW":["Schneider LC1D18 24VDC coil + LRD22","Siemens 3RT2017 24VDC + 3RU2"],"5.5kW VFD":["ABB ACS880-01 5.5kW 400V PN","Siemens G120 5.5kW 400V PN"],"11kW VFD":["ABB ACS880-01 11kW 400V PN","Siemens G120 11kW 400V PN"],"22kW VFD":["ABB ACS880-01 22kW 400V PN","Siemens G120 22kW 400V PN"],"PLC CPU":["Siemens S7-1500 CPU 1516-3 PN/DP","Allen Bradley CompactLogix L33ER","Beckhoff CX5130 EtherCAT"],"HMI Touchscreen":["Siemens TP1500 Comfort 15\" TFT PN","Weintek MT8121iE 12\" TFT Ethernet"],"Safety PLC":["Siemens ET200SP F-CPU SIL-2","Pilz PNOZmulti 2 m B0 SIL-3"],"Cable Tray 300 mm":["Hot-dip galv steel perforated 300mm×50mm 2m","Stainless SS316 300mm×50mm 2m"],"Steel Conduit 25 mm":["Hot-dip galv BS EN 61386 25mm 3m","SS316 25mm 3m screwed"]}
+);
+
+sec("Roll Forming – Strip Prep & Quality",
+  ["Strip Oiling","Edge Inspection","Thickness/Width Gauge","Surface Inspection"],
+  {"Strip Oiling":["Oil Applicator Roll (Upper)","Oil Applicator Roll (Lower)","Oil Reservoir","Gear Pump","Metering Valve","Oil Level Sensor"],"Edge Inspection":["Edge Detector (Laser)","Edge Position Controller","Edge Steering Actuator"],"Thickness/Width Gauge":["Laser Width Gauge","X-ray Thickness Gauge","Eddy Current Thickness Gauge"],"Surface Inspection":["Line Scan Camera","Defect Detection Unit","Lighting Bar"]},
+  {"Oil Applicator Roll (Upper)":["Ø100×1300mm felt-covered SS core","Ø100×600mm rubber grooved SS core"],"Oil Reservoir":["20L SS316 with level sight glass","50L SS316 with level sensor"],"Edge Detector (Laser)":["Laser line triangulation ±0.1mm RS485 IP65","Laser line triangulation ±0.05mm RS485 IP67"],"Laser Width Gauge":["Range 0–1500mm accuracy ±0.1mm RS485","Range 0–2000mm accuracy ±0.05mm EtherCAT"],"X-ray Thickness Gauge":["Range 0.3–25mm accuracy ±0.5µm 4-20mA","Range 0.2–12mm accuracy ±0.3µm 4-20mA"],"Line Scan Camera":["4096 pixel CCD 50kHz line rate GigE","2048 pixel CMOS 80kHz Camera Link"]}
+);
+
+// ============================
+// PLANT TYPES
+// ============================
+const PT = {
+  milling:     {sections:["Reheater Furnace","Rolling Mill Stands","Roughing Mill","Intermediate & Finishing Mill","Bar & Section Mill","Billet Handling & CCM","Melt Shop / EAF","Power & Electrical Distribution","Utilities & Services","Maintenance & Spare Parts"]},
+  rollforming: {sections:["Roll Forming – Coil Feeding","Roll Forming – Forming Section","Roll Forming – Cutting & Shearing","Roll Forming – Runout, Stacking & Packing","Roll Forming – Hydraulic System","Roll Forming – Electrical & Controls","Roll Forming – Strip Prep & Quality"]}
+};
+let currentPT = 'milling';
+function getSections(){return PT[currentPT].sections;}
+
+// ============================
+// ROW DATA & RENDER
+// ============================
+let rows = [];
+let rowCount = 0;
+
+function addRow(pre){
+  const id = ++rowCount;
+  const row = {id, section:'', subsystem:'', component:'', spec:'', notes:'', qty:'', units:'', total:'', _el:null};
+  if(pre){Object.assign(row,pre);}
+  rows.push(row);
+  renderRow(row);
+  updateStats();
+  if(!pre) expandRow(row.id);
+}
+
+function renderRow(row){
+  const list = document.getElementById('bom-list');
+  const div = document.createElement('div');
+  div.className = 'bom-row';
+  div.id = 'row-'+row.id;
+  row._el = div;
+
+  const sections = getSections();
+  const mData = MD[row.section] || MD[sections[0]] || {};
+  const firstSection = row.section || sections[0];
+  const subs = (MD[firstSection]?.subsystems)||[];
+  const firstSub = row.subsystem || subs[0] || '';
+  const comps = (MD[firstSection]?.components||{})[firstSub]||[];
+  const firstComp = row.component || comps[0] || '';
+  const specs = (MD[firstSection]?.specs||{})[firstComp]||[];
+
+  function opts(arr,sel){return arr.map(v=>`<option value="${esc(v)}"${v===sel?' selected':''}>` + esc(v) + `</option>`).join('')+`<option value="Others…"${sel==='Others…'?' selected':''}>Others…</option>`;}
+
+  div.innerHTML = `
+    <div class="bom-row-head" onclick="toggleRow(${row.id})">
+      <span class="bom-row-num">#${row.id}</span>
+      <span class="bom-row-summary" id="summary-${row.id}">${row.section||'New item'}</span>
+      <span class="bom-row-toggle">▾</span>
+    </div>
+    <div class="bom-row-body">
+      <div class="bom-field">
+        <label>Plant Section</label>
+        <select id="sec-${row.id}" onchange="onSec(${row.id})">${opts(sections,firstSection)}</select>
+      </div>
+      <div class="bom-field">
+        <label>Subsystem</label>
+        <select id="sub-${row.id}" onchange="onSub(${row.id})">${opts(subs,firstSub)}</select>
+      </div>
+      <div class="bom-field">
+        <label>Component</label>
+        <select id="comp-${row.id}" onchange="onComp(${row.id})">${opts(comps,firstComp)}</select>
+      </div>
+      <div class="bom-field">
+        <label>Specification</label>
+        <select id="spec-${row.id}">${opts(specs,row.spec||specs[0]||'')}</select>
+      </div>
+      <div class="bom-field">
+        <label>Notes / Remarks</label>
+        <input type="text" id="note-${row.id}" value="${esc(row.notes||'')}" placeholder="Optional notes">
+      </div>
+      <div class="bom-qty-row">
+        <div class="bom-field">
+          <label>Qty/Unit</label>
+          <input type="number" id="qty-${row.id}" value="${row.qty||''}" min="0" step="any" oninput="calcTotal(${row.id})">
+        </div>
+        <div class="bom-field">
+          <label># Units</label>
+          <input type="number" id="units-${row.id}" value="${row.units||''}" min="0" step="any" oninput="calcTotal(${row.id})">
+        </div>
+        <div class="bom-field">
+          <label>Total</label>
+          <input type="number" id="total-${row.id}" value="${row.total||''}" readonly>
+        </div>
+      </div>
+      <button class="bom-del" onclick="deleteRow(${row.id})">✕ Remove This Row</button>
+    </div>`;
+
+  list.appendChild(div);
+  updateSummary(row.id);
+  showEmpty();
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function toggleRow(id){
+  const el = document.getElementById('row-'+id);
+  if(el) el.classList.toggle('expanded');
+}
+function expandRow(id){
+  const el = document.getElementById('row-'+id);
+  if(el) el.classList.add('expanded');
+}
+
+function onSec(id){
+  const sec = document.getElementById('sec-'+id)?.value;
+  if(!sec) return;
+  const mData = MD[sec]||{};
+  const subs = mData.subsystems||[];
+  const subSel = document.getElementById('sub-'+id);
+  if(subSel){ subSel.innerHTML = subs.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+`<option value="Others…">Others…</option>`; }
+  onSub(id);
+  updateSummary(id);
+  updateStats();
+}
+function onSub(id){
+  const sec = document.getElementById('sec-'+id)?.value;
+  const sub = document.getElementById('sub-'+id)?.value;
+  const comps = (MD[sec]?.components||{})[sub]||[];
+  const compSel = document.getElementById('comp-'+id);
+  if(compSel){ compSel.innerHTML = comps.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+`<option value="Others…">Others…</option>`; }
+  onComp(id);
+  updateSummary(id);
+}
+function onComp(id){
+  const sec = document.getElementById('sec-'+id)?.value;
+  const comp = document.getElementById('comp-'+id)?.value;
+  const specs = (MD[sec]?.specs||{})[comp]||[];
+  const specSel = document.getElementById('spec-'+id);
+  if(specSel){ specSel.innerHTML = specs.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+`<option value="Others…">Others…</option>`; }
+  updateSummary(id);
+}
+function calcTotal(id){
+  const q = parseFloat(document.getElementById('qty-'+id)?.value)||0;
+  const u = parseFloat(document.getElementById('units-'+id)?.value)||0;
+  const tot = q*u;
+  const el = document.getElementById('total-'+id);
+  if(el) el.value = tot||'';
+  updateStats();
+}
+function updateSummary(id){
+  const sec = document.getElementById('sec-'+id)?.value||'';
+  const comp = document.getElementById('comp-'+id)?.value||'';
+  const el = document.getElementById('summary-'+id);
+  if(el) el.textContent = comp ? `${comp} (${sec.split('–')[0].trim()})` : sec||'New item';
+}
+function deleteRow(id){
+  rows = rows.filter(r=>r.id!==id);
+  const el = document.getElementById('row-'+id);
+  if(el) el.remove();
+  updateStats();
+  showEmpty();
+}
+function clearRows(){
+  if(!confirm('Clear all BOM rows?')) return;
+  rows=[];
+  document.getElementById('bom-list').innerHTML='';
+  showEmpty();
+  updateStats();
+}
+function showEmpty(){
+  const empty = document.getElementById('bom-empty');
+  const list = document.getElementById('bom-list');
+  if(empty){ empty.style.display = list.children.length===0?'block':'none'; }
+}
+
+// ============================
+// STATS
+// ============================
+function updateStats(){
+  const rowEls = document.querySelectorAll('.bom-row');
+  const n = rowEls.length;
+  let secs=new Set(), total=0;
+  rowEls.forEach(el=>{
+    const id = el.id.replace('row-','');
+    const s = document.getElementById('sec-'+id)?.value;
+    if(s) secs.add(s);
+    total += parseFloat(document.getElementById('total-'+id)?.value)||0;
+  });
+  document.getElementById('st-rows').textContent = n;
+  document.getElementById('st-sections').textContent = secs.size;
+  document.getElementById('st-total').textContent = total ? total.toLocaleString() : 0;
+}
+
+// ============================
+// PLANT TYPE
+// ============================
+function setPlantType(pt){
+  currentPT = pt;
+  document.getElementById('ptBtn-milling').classList.toggle('active',pt==='milling');
+  document.getElementById('ptBtn-rollforming').classList.toggle('active',pt==='rollforming');
+  document.getElementById('pt-badge').innerHTML = pt==='milling'?'🏭 MILLING':'🔩 ROLL FORMING';
+  // Rebuild section selects in existing rows
+  const sections = getSections();
+  document.querySelectorAll('.bom-row').forEach(el=>{
+    const id = el.id.replace('row-','');
+    const secSel = document.getElementById('sec-'+id);
+    if(secSel){
+      secSel.innerHTML = sections.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+`<option value="Others…">Others…</option>`;
+      onSec(id);
+    }
+  });
+}
+
+// ============================
+// COLLECT DATA
+// ============================
+function collectRows(){
+  return [...document.querySelectorAll('.bom-row')].map(el=>{
+    const id = el.id.replace('row-','');
+    return {
+      section:   document.getElementById('sec-'+id)?.value||'',
+      subsystem: document.getElementById('sub-'+id)?.value||'',
+      component: document.getElementById('comp-'+id)?.value||'',
+      spec:      document.getElementById('spec-'+id)?.value||'',
+      notes:     document.getElementById('note-'+id)?.value||'',
+      qty:       document.getElementById('qty-'+id)?.value||'',
+      units:     document.getElementById('units-'+id)?.value||'',
+      total:     document.getElementById('total-'+id)?.value||''
+    };
+  });
+}
+function gv(id){return document.getElementById(id)?.value||'';}
+
+// ============================
+// DATABASE
+// ============================
+const DB_KEY='mmc_bom_mob_v1';
+let DB={}, editId=null;
+function saveDB(){localStorage.setItem(DB_KEY,JSON.stringify(DB));}
+function loadDB(){try{DB=JSON.parse(localStorage.getItem(DB_KEY)||'{}')}catch(e){DB={};}}
+
+function saveBOM(){
+  let ref=gv('bomRef');
+  if(!ref){ref=`BOM-${Date.now()}`;document.getElementById('bomRef').value=ref;}
+  const data={project:{bomRef:ref,bomDate:gv('bomDate'),prepBy:gv('prepBy'),appBy:gv('appBy'),plantType:currentPT,totalCost:gv('totalCost'),revision:gv('revision')},rows:collectRows()};
+  const key=editId||ref;
+  data._meta={savedAt:new Date().toISOString()};
+  DB[key]=data; editId=null; saveDB(); updateCounters();
+  showToast(`Saved: ${key}`);
+}
+function loadBOM(ref){
+  const bom=DB[ref]; if(!bom) return;
+  editId=ref;
+  document.getElementById('bomRef').value=bom.project.bomRef||'';
+  document.getElementById('bomDate').value=bom.project.bomDate||'';
+  document.getElementById('prepBy').value=bom.project.prepBy||'';
+  document.getElementById('appBy').value=bom.project.appBy||'';
+  document.getElementById('totalCost').value=bom.project.totalCost||'';
+  document.getElementById('revision').value=bom.project.revision||'';
+  setPlantType(bom.project.plantType||'milling');
+  rows=[]; rowCount=0;
+  document.getElementById('bom-list').innerHTML='';
+  bom.rows.forEach(r=>addRow(r));
+  switchPage('entry'); showToast(`Loaded: ${ref}`);
+}
+function deleteBOM(ref){if(confirm(`Delete ${ref}?`)){delete DB[ref];saveDB();updateCounters();renderDB();}}
+function clearDatabase(){if(confirm('Delete ALL BOMs?')){DB={};saveDB();updateCounters();renderDB();}}
+function startNewBOM(){
+  editId=null; rows=[]; rowCount=0;
+  ['bomRef','prepBy','appBy','revision'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('bomDate').value=new Date().toISOString().slice(0,10);
+  document.getElementById('totalCost').value='';
+  document.getElementById('bom-list').innerHTML='';
+  addRow(); showEmpty();
+}
+function updateCounters(){
+  const n=Object.keys(DB).length;
+  document.getElementById('nav-db-count').textContent=n;
+}
+function renderDB(){
+  const list=document.getElementById('db-list');
+  const entries=Object.entries(DB);
+  document.getElementById('db-empty').style.display=entries.length===0?'block':'none';
+  list.innerHTML=entries.map(([ref,bom])=>`
+    <div class="db-item">
+      <div class="db-item-ref">${ref}</div>
+      <div class="db-item-meta">
+        <span>${bom.project.plantType==='rollforming'?'🔩 Roll Forming':'🏭 Milling'}</span>
+        <span>📋 ${bom.rows.length} rows</span>
+        <span>🕐 ${bom._meta?.savedAt?new Date(bom._meta.savedAt).toLocaleDateString():'—'}</span>
+      </div>
+      <div class="db-btn-row">
+        <button class="db-btn db-btn-edit" onclick="loadBOM('${ref.replace(/'/g,"\\'")}')" >✏ Load</button>
+        <button class="db-btn db-btn-xl" onclick="exportSingle('${ref.replace(/'/g,"\\'")}')" >📊 XL</button>
+        <button class="db-btn db-btn-del" onclick="deleteBOM('${ref.replace(/'/g,"\\'")}')" >🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ============================
+// EXCEL
+// ============================
+function buildWB(bom){
+  const wb=XLSX.utils.book_new();
+  const hdr=['Plant Section','Subsystem','Component','Specification','Notes / Remarks','Qty/Unit','# Units','Total'];
+  const ws=XLSX.utils.aoa_to_sheet([hdr,...bom.rows.map(r=>[r.section,r.subsystem,r.component,r.spec,r.notes,r.qty,r.units,r.total])]);
+  XLSX.utils.book_append_sheet(wb,ws,'BOM'); return wb;
+}
+function exportExcel(){
+  const d={project:{bomRef:gv('bomRef')},rows:collectRows()};
+  if(!d.rows.length){showToast('No rows','error');return;}
+  XLSX.writeFile(buildWB(d),`BOM_${d.project.bomRef||'export'}.xlsx`);
+}
+function exportSingle(ref){
+  const bom=DB[ref];if(!bom)return;
+  XLSX.writeFile(buildWB(bom),`BOM_${ref}.xlsx`);showToast('Exported');
+}
+function exportAllBOMs(){
+  if(!Object.keys(DB).length){showToast('No BOMs','error');return;}
+  const wb=XLSX.utils.book_new();
+  Object.entries(DB).forEach(([ref,bom])=>XLSX.utils.book_append_sheet(wb,buildWB(bom).Sheets.BOM,ref.slice(0,31)));
+  XLSX.writeFile(wb,'All_BOMs.xlsx');
+}
+function importExcel(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+    const rowsArr=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+    if(!rowsArr||rowsArr.length<2){showToast('No data','error');return;}
+    const h=rowsArr[0];
+    const ci=col=>h.indexOf(col);
+    const newRows=[];
+    for(let i=1;i<rowsArr.length;i++){
+      const r=rowsArr[i];
+      if(!r[ci('Plant Section')]&&!r[ci('Component')]) continue;
+      const q=parseFloat(r[ci('Qty/Unit')])||0,u=parseFloat(r[ci('# Units')])||0;
+      newRows.push({section:r[ci('Plant Section')]||'',subsystem:r[ci('Subsystem')]||'',component:r[ci('Component')]||'',spec:r[ci('Specification')]||'',notes:r[ci('Notes / Remarks')]||'',qty:r[ci('Qty/Unit')]||'',units:r[ci('# Units')]||'',total:q*u||''});
+    }
+    if(!newRows.length){showToast('No valid rows','error');return;}
+    rows=[];rowCount=0;
+    document.getElementById('bom-list').innerHTML='';
+    newRows.forEach(r=>addRow(r));
+    showToast(`Imported ${newRows.length} rows`,'success');
+    document.getElementById('xlImport').value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ============================
+// UI
+// ============================
+function switchPage(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+pg).classList.add('active');
+  document.getElementById('nav-'+pg).classList.add('active');
+  const fab=document.getElementById('fab');
+  if(fab) fab.style.display = pg==='entry'?'flex':'none';
+  if(pg==='db') renderDB();
+}
+function toggleProjectInfo(){
+  const body=document.getElementById('projectInfoBody');
+  const btn=document.getElementById('projectInfoToggle');
+  const open=body.style.display==='none';
+  body.style.display=open?'block':'none';
+  btn.textContent=open?'▴ Hide':'▾ Show';
+}
+function openAnalytics(){
+  const rowEls=[...document.querySelectorAll('.bom-row')];
+  const n=rowEls.length;
+  let secs={},subs={},comps=new Set(),total=0;
+  rowEls.forEach(el=>{
+    const id=el.id.replace('row-','');
+    const s=document.getElementById('sec-'+id)?.value;
+    const ss=document.getElementById('sub-'+id)?.value;
+    const c=document.getElementById('comp-'+id)?.value;
+    if(s) secs[s]=(secs[s]||0)+1;
+    if(ss) subs[ss]=(subs[ss]||0)+1;
+    if(c) comps.add(c);
+    total+=parseFloat(document.getElementById('total-'+id)?.value)||0;
+  });
+  const maxSec=Math.max(...Object.values(secs),1);
+  const topSubs=Object.entries(subs).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const html=`
+    <div class="analytics-stat"><span class="analytics-stat-label">Total Rows</span><span class="analytics-stat-val">${n}</span></div>
+    <div class="analytics-stat"><span class="analytics-stat-label">Plant Sections</span><span class="analytics-stat-val">${Object.keys(secs).length}</span></div>
+    <div class="analytics-stat"><span class="analytics-stat-label">Unique Components</span><span class="analytics-stat-val">${comps.size}</span></div>
+    <div class="analytics-stat" style="background:rgba(10,158,104,.1)"><span class="analytics-stat-label">Total Qty</span><span class="analytics-stat-val" style="color:var(--accent2)">${total.toLocaleString()}</span></div>
+    <div class="spacer"></div>
+    <div style="font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Rows by Section</div>
+    ${Object.entries(secs).map(([k,v])=>`
+      <div class="analytics-bar-row">
+        <div class="analytics-bar-label"><span>${k}</span><span>${v}</span></div>
+        <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:${Math.round(v/maxSec*100)}%"></div></div>
+      </div>`).join('')||'<div style="color:var(--txt3);font-size:12px;">No data yet.</div>'}
+    ${topSubs.length?`<div style="font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 8px;">Top Subsystems</div>`+topSubs.map(([k,v])=>`<div class="analytics-bar-row"><div class="analytics-bar-label"><span>${k}</span><span>${v}</span></div><div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:${Math.round(v/topSubs[0][1]*100)}%;background:var(--accent2)"></div></div></div>`).join(''):''}
+    <div style="font-size:11px;color:var(--txt3);margin-top:12px;">BOMs in DB: <strong style="color:var(--txt)">${Object.keys(DB).length}</strong></div>`;
+  document.getElementById('analytics-content').innerHTML=html;
+  openSheet('analyticsSheet');
+}
+function openSettings(){openSheet('settingsSheet');}
+function openSheet(id){document.getElementById(id).classList.add('open');}
+function closeSheet(id){document.getElementById(id).classList.remove('open');}
+
+let dark=false;
+function toggleDark(){
+  dark=!dark;
+  document.getElementById('appRoot').className=dark?'dk':'';
+  const icon=document.getElementById('darkIcon');
+  if(icon) icon.setAttribute('d',dark?'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z':'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z');
+}
+function setTheme(t){
+  dark=t==='dark';
+  document.getElementById('appRoot').className=dark?'dk':'';
+  closeSheet('settingsSheet');
+}
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+(type==='error'?'error':type==='info'?'info':'');
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ============================
+// INIT
+// ============================
+document.addEventListener('DOMContentLoaded',()=>{
+  loadDB();
+  document.getElementById('bomDate').value=new Date().toISOString().slice(0,10);
+  setPlantType('milling');
+  addRow();
+  updateCounters();
+  showEmpty();
+});
+</script>
+</body>
+</html>
